@@ -1,0 +1,15 @@
+#!/bin/sh
+
+case $1 in
+  migrate)
+  echo "Running Migrations"
+  /app/bin/rinha_backend eval "ReleaseTasks.migrate()"
+  ;;
+  create_db)
+  echo "Creating Database"
+  /app/bin/rinha_backend eval "ReleaseTasks.create_db()"
+  ;;
+  *)
+  /app/bin/rinha_backend_v3 $@
+  ;;
+esac
