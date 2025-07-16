@@ -35,7 +35,7 @@ RUN mkdir config
 # copy compile-time config files before we compile dependencies
 # to ensure any relevant config change will trigger the dependencies
 # to be re-compiled.
-# COPY config config/
+COPY config config/
 RUN mix deps.compile
 
 # COPY priv priv

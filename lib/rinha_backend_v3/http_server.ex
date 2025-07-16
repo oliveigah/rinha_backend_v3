@@ -1,5 +1,9 @@
-defmodule HttpServer do
+defmodule RinhaBackendV3.HttpServer do
   use Plug.Router
+
+  alias RinhaBackendV3.Payment
+  alias RinhaBackendV3.Payments.Queue
+  alias RinhaBackendV3.Payments.SummaryStorage
 
   plug(:match)
 
@@ -14,29 +18,25 @@ defmodule HttpServer do
   post "/payments" do
     body = conn.body_params
 
-    required = [:correlationId, :amount]
-
-    body_rules = %{
-      correlationId: [
-        fn v -> is_bitstring(v) end
-      ],
-      amount: [
-        fn v -> is_float(v) end
-      ]
+    p = %Payment{
+      amount: Map.fetch!(body, "amount"),
+      # correlation_id: Map.fetch!(body, "correlationId")
+      correlation_id: UUIDv7.generate(),
+      requested_at: DateTime.utc_now() |> DateTime.to_iso8601()
     }
 
-    cond do
-      not Enum.all?(required, fn k -> Map.get(body, Atom.to_string(k)) end) ->
-        send_resp(conn, 422, "")
+    :ok = Queue.insert(p)
 
-      not Enum.all?(body_rules, fn {k, rules} ->
-        Enum.all?(rules, fn f -> f.(body[Atom.to_string(k)]) end)
-      end) ->
-        send_resp(conn, 400, "")
+    send_resp(conn, 200, "")
+  end
 
-      true ->
-        send_resp(conn, 200, JSON.encode!(body))
-    end
+  get "/payments-summary" do
+    conn = fetch_query_params(conn)
+    resp = SummaryStorage.get_global_summary(conn.query_params["from"], conn.query_params["to"])
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, JSON.encode!(resp))
   end
 
   match _ do

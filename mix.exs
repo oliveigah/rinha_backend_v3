@@ -23,7 +23,9 @@ defmodule RinhaBackendV3.MixProject do
   defp deps do
     [
       {:bandit, "~> 1.7"},
-      {:plug, "~> 1.18"}
+      {:plug, "~> 1.18"},
+      {:finch, "~> 0.20.0"},
+      {:uuid_v7, "~> 0.6.0"}
     ]
   end
 end

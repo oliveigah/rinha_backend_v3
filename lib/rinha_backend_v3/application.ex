@@ -12,13 +12,32 @@ defmodule RinhaBackendV3.Application do
     children = [
       # Starts a worker by calling: RinhaBackendV3.Worker.start_link(arg)
       # {RinhaBackendV3.Worker, arg}
-      {Bandit, plug: HttpServer, port: System.fetch_env!("HTTP_SERVER_PORT")}
+      {Finch,
+       name: HttpClient,
+       pools: %{
+         :default => [size: 50, count: 1]
+       }},
+      RinhaBackendV3.Payments.SummaryStorage,
+      RinhaBackendV3.Payments.ProviderStatusChecker,
+      RinhaBackendV3.Payments.Queue,
+      {Bandit, plug: RinhaBackendV3.HttpServer, port: System.fetch_env!("HTTP_SERVER_PORT")},
+      init_processors()
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: RinhaBackendV3.Supervisor]
-    Supervisor.start_link(children, opts)
+    Supervisor.start_link(List.flatten(children), opts)
+  end
+
+  defp init_processors() do
+    count = System.fetch_env!("PROCESSORS_COUNT") |> String.to_integer()
+
+    Enum.map(1..count, fn i ->
+      Supervisor.child_spec({RinhaBackendV3.Payments.Processor, nil},
+        id: {RinhaBackendV3.Payments.Processor, i}
+      )
+    end)
   end
 
   defp connect_to_cluster(timeout) do
