@@ -28,7 +28,6 @@ defmodule RinhaBackendV3.Payments.Processor do
           :ok ->
             new_payment = %Payment{payment | provider: current_provider}
             true = SummaryStorage.write(new_payment)
-            IO.inspect("processed payment #{new_payment.correlation_id} successfully")
             :ok
 
           :error ->

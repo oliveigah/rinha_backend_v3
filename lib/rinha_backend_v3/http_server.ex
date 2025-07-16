@@ -20,8 +20,8 @@ defmodule RinhaBackendV3.HttpServer do
 
     p = %Payment{
       amount: Map.fetch!(body, "amount"),
-      # correlation_id: Map.fetch!(body, "correlationId")
-      correlation_id: UUIDv7.generate(),
+      correlation_id: Map.fetch!(body, "correlationId"),
+      # correlation_id: UUIDv7.generate(),
       requested_at: DateTime.utc_now() |> DateTime.to_iso8601()
     }
 
@@ -37,6 +37,10 @@ defmodule RinhaBackendV3.HttpServer do
     conn
     |> put_resp_content_type("application/json")
     |> send_resp(200, JSON.encode!(resp))
+  end
+
+  get "/health" do
+    send_resp(conn, 200, "")
   end
 
   match _ do

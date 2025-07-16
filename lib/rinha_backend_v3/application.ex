@@ -20,7 +20,11 @@ defmodule RinhaBackendV3.Application do
       RinhaBackendV3.Payments.SummaryStorage,
       RinhaBackendV3.Payments.ProviderStatusChecker,
       RinhaBackendV3.Payments.Queue,
-      {Bandit, plug: RinhaBackendV3.HttpServer, port: System.fetch_env!("HTTP_SERVER_PORT")},
+      {
+        Bandit,
+        plug: RinhaBackendV3.HttpServer, port: System.fetch_env!("HTTP_SERVER_PORT")
+        # thousand_island_options: [num_acceptors: 200]
+      },
       init_processors()
     ]
 
