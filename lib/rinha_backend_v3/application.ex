@@ -15,11 +15,14 @@ defmodule RinhaBackendV3.Application do
       {Finch,
        name: HttpClient,
        pools: %{
-         :default => [size: 50, count: 1]
+         :default => [
+           size: System.fetch_env!("PROCESSORS_COUNT") |> String.to_integer(),
+           count: 1
+         ]
        }},
       RinhaBackendV3.Payments.SummaryStorage,
       RinhaBackendV3.Payments.ProviderStatusChecker,
-      RinhaBackendV3.Payments.Queue,
+      RinhaBackendV3.Payments.PendingQueue,
       {
         Bandit,
         plug: RinhaBackendV3.HttpServer, port: System.fetch_env!("HTTP_SERVER_PORT")

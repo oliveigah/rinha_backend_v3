@@ -2,7 +2,7 @@ defmodule RinhaBackendV3.HttpServer do
   use Plug.Router
 
   alias RinhaBackendV3.Payment
-  alias RinhaBackendV3.Payments.Queue
+  alias RinhaBackendV3.Payments.PendingQueue
   alias RinhaBackendV3.Payments.SummaryStorage
 
   plug(:match)
@@ -20,12 +20,10 @@ defmodule RinhaBackendV3.HttpServer do
 
     p = %Payment{
       amount: Map.fetch!(body, "amount"),
-      correlation_id: Map.fetch!(body, "correlationId"),
-      # correlation_id: UUIDv7.generate(),
-      requested_at: DateTime.utc_now() |> DateTime.to_iso8601()
+      correlation_id: Map.fetch!(body, "correlationId")
     }
 
-    :ok = Queue.insert(p)
+    :ok = PendingQueue.insert(p)
 
     send_resp(conn, 200, "")
   end

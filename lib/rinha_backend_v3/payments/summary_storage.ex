@@ -19,6 +19,9 @@ defmodule RinhaBackendV3.Payments.SummaryStorage do
     GenServer.start_link(__MODULE__, args, name: __MODULE__)
   end
 
+  def delete(%Payment{} = p),
+    do: :ets.delete(__MODULE__, p.requested_at <> "_" <> p.correlation_id)
+
   def write(%Payment{} = p),
     do:
       :ets.insert(
@@ -29,7 +32,8 @@ defmodule RinhaBackendV3.Payments.SummaryStorage do
   def get_global_summary(from, to) do
     all_nodes = Node.list([:this, :visible])
 
-    {resps, _badnodes} = :rpc.multicall(all_nodes, __MODULE__, :get_summary, [from, to])
+    {resps, _badnodes} =
+      :rpc.multicall(all_nodes, __MODULE__, :get_summary, [from, to], :infinity)
 
     Enum.reduce(
       resps,
@@ -50,9 +54,13 @@ defmodule RinhaBackendV3.Payments.SummaryStorage do
          acc ->
         acc
         |> update_in([:default, :totalRequests], fn t -> t + default_remote_total_reqs end)
-        |> update_in([:default, :totalAmount], fn t -> t + default_remote_total_amount end)
+        |> update_in([:default, :totalAmount], fn t ->
+          Float.round(t + default_remote_total_amount, 2)
+        end)
         |> update_in([:fallback, :totalRequests], fn t -> t + fallback_remote_total_reqs end)
-        |> update_in([:fallback, :totalAmount], fn t -> t + fallback_remote_total_amount end)
+        |> update_in([:fallback, :totalAmount], fn t ->
+          Float.round(t + fallback_remote_total_amount, 2)
+        end)
       end
     )
   end

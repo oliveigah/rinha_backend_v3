@@ -1,4 +1,4 @@
-defmodule RinhaBackendV3.Payments.Queue do
+defmodule RinhaBackendV3.Payments.PendingQueue do
   use GenServer
 
   alias RinhaBackendV3.Payment
@@ -39,7 +39,7 @@ defmodule RinhaBackendV3.Payments.Queue do
     :ets.insert(__MODULE__, {index, p})
   end
 
-  def pop_next() do
+  def take_next() do
     case :ets.first(__MODULE__) do
       :"$end_of_table" ->
         :empty
@@ -48,7 +48,7 @@ defmodule RinhaBackendV3.Payments.Queue do
         case :ets.take(__MODULE__, index) do
           [] ->
             # race condition, try to fetch next
-            pop_next()
+            take_next()
 
           [{^index, payment}] ->
             {index, payment}

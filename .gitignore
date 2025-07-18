@@ -21,3 +21,7 @@ rinha_backend_v3-*.tar
 
 # Temporary files, for example, from tests.
 /tmp/
+
+/external_resources/*
+
+/test_results/*

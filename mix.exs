@@ -25,7 +25,8 @@ defmodule RinhaBackendV3.MixProject do
       {:bandit, "~> 1.7"},
       {:plug, "~> 1.18"},
       {:finch, "~> 0.20.0"},
-      {:uuid_v7, "~> 0.6.0"}
+      {:uuid_v7, "~> 0.6.0", only: [:test]},
+      {:observer_cli, "~> 1.8"}
     ]
   end
 end
