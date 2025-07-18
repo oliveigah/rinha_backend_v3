@@ -14,7 +14,7 @@ defmodule RinhaBackendV3.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger],
+      extra_applications: [:logger, :inets],
       mod: {RinhaBackendV3.Application, []}
     ]
   end
@@ -23,10 +23,7 @@ defmodule RinhaBackendV3.MixProject do
   defp deps do
     [
       {:bandit, "~> 1.7"},
-      {:plug, "~> 1.18"},
-      {:finch, "~> 0.20.0"},
-      {:uuid_v7, "~> 0.6.0", only: [:test]},
-      {:observer_cli, "~> 1.8"}
+      {:plug, "~> 1.18"}
     ]
   end
 end

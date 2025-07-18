@@ -25,3 +25,5 @@ rinha_backend_v3-*.tar
 /external_resources/*
 
 /test_results/*
+
+external_resources/

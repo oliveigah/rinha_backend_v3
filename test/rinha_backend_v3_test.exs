@@ -61,7 +61,7 @@ defmodule RinhaBackendV3Test do
       Enum.map(0..1000, fn i ->
         %Payment{
           amount: base_amount + i / 10,
-          correlation_id: UUIDv7.generate(),
+          correlation_id: "#{i}",
           provider: if(rem(i, 2) == 0, do: :default, else: :fallback),
           requested_at: DateTime.add(first_ts, i, :minute) |> DateTime.to_iso8601()
         }
@@ -82,7 +82,7 @@ defmodule RinhaBackendV3Test do
       Enum.map(0..1000, fn i ->
         %Payment{
           amount: base_amount + i / 10,
-          correlation_id: UUIDv7.generate(),
+          correlation_id: "#{i}",
           provider: if(rem(i, 2) == 0, do: :default, else: :fallback),
           requested_at: DateTime.add(first_ts, i, :minute) |> DateTime.to_iso8601()
         }
@@ -166,5 +166,7 @@ defmodule RinhaBackendV3Test do
                totalAmount: 40.4
              }
            } = SummaryStorage.get_summary(nil, "2025-07-16T01:49:00.000000Z")
+
+    SummaryStorage.flush()
   end
 end

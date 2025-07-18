@@ -1,6 +1,6 @@
-version: "3.5"
 services:
   api1:
+    # image: oliveigah/rinha-backend-v3:0.0.1
     build: .
     hostname: api1.com
     networks:
@@ -25,9 +25,10 @@ services:
       resources:
         limits:
           cpus: "0.6"
-          memory: "147MB"
+          memory: "147.5MB"
 
   api2:
+    # image: oliveigah/rinha-backend-v3:0.0.1
     build: .
     networks:
       - payment-processor
@@ -51,10 +52,15 @@ services:
       resources:
         limits:
           cpus: "0.6"
-          memory: "147MB"
+          memory: "147.5MB"
 
   haproxy:
     image: haproxy:3.1.7
+    depends_on:
+      api1:
+        condition: service_healthy
+      api2:
+        condition: service_healthy
     networks:
       - payment-processor
     ports:
@@ -72,8 +78,8 @@ services:
       resources:
         limits:
           cpus: "0.3"
-          # base 14MB + 10MB/1k conn
-          memory: "56MB"
+          # base 15MB + 10MB/1k conn
+          memory: "55MB"
     volumes:
       - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
 

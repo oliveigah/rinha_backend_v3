@@ -7,38 +7,34 @@ defmodule RinhaBackendV3.Payments.Providers do
   }
 
   def failling?(provider) do
-    req = Finch.build(:get, "#{@provider_data[provider].base_url}/payments/service-health")
+    url = ~c"#{@provider_data[provider].base_url}/payments/service-health"
 
-    case Finch.request(req, HttpClient) do
-      {:ok, %Finch.Response{body: str_body, status: 200}} ->
-        case JSON.decode(str_body) do
+    case :httpc.request(:get, {url, []}, [], []) do
+      {:ok, {{_httpv, 200, _status_msg}, _headers, charlist_body}} ->
+        case JSON.decode(to_string(charlist_body)) do
           {:ok, %{"failing" => failing?}} -> failing?
           _err -> true
         end
 
-      _ ->
+      _e ->
         true
     end
   end
 
   def process_payment(%Payment{} = p, provider) when provider in [:default, :fallback] do
-    body = %{
-      "correlationId" => p.correlation_id,
-      "amount" => p.amount,
-      "requestedAt" => p.requested_at
-    }
+    url = ~c"#{@provider_data[provider].base_url}/payments"
 
-    req =
-      Finch.build(
-        :post,
-        "#{@provider_data[provider].base_url}/payments",
-        [{"Content-Type", "application/json"}],
-        JSON.encode!(body),
-        []
-      )
+    body =
+      %{
+        "correlationId" => p.correlation_id,
+        "amount" => p.amount,
+        "requestedAt" => p.requested_at
+      }
+      |> JSON.encode!()
+      |> to_charlist()
 
-    case Finch.request(req, HttpClient) do
-      {:ok, %Finch.Response{status: 200}} ->
+    case :httpc.request(:post, {url, [], ~c"application/json", body}, [], []) do
+      {:ok, {{_httpv, 200, _status_msg}, _headers, _charlist_body}} ->
         :ok
 
       _err ->

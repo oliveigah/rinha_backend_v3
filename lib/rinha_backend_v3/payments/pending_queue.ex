@@ -13,8 +13,7 @@ defmodule RinhaBackendV3.Payments.PendingQueue do
     :ets.new(__MODULE__, [
       :ordered_set,
       :public,
-      :named_table,
-      decentralized_counters: true
+      :named_table
     ])
 
     {:ok, nil}
